@@ -1,3 +1,4 @@
+
 /****************************************************************************
  *
  * (c) 2009-2019 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
@@ -77,6 +78,7 @@ Item {
     property var    battery1:           activeVehicle ? activeVehicle.battery  : null
     property var    battery2:           activeVehicle ? activeVehicle.battery2 : null
     property bool   hasSecondBattery:   battery2 && battery2.voltage.value !== -1
+    property alias vehicleIndicator: vehicleIndicator
 
     function getVerticalSpeed(){
         var _temp="0.0"
@@ -294,19 +296,20 @@ Item {
     //-- Vehicle Indicator  ( Widget rect )
     Rectangle {
         id:                     vehicleIndicator
+
         color:                  qgcPal.globalTheme === QGCPalette.Light ? Qt.rgba(1,1,1,0.95) : Qt.rgba(0,0,0,0.2)//0.3
         width:                  vehicleStatusGrid.width  + (ScreenTools.defaultFontPixelWidth  * 5)//5
         height:                 vehicleStatusGrid.height + (ScreenTools.defaultFontPixelHeight * 1.2)//1.5
         radius:                 2
 
-        anchors.top:    battTimeLoader.top
-        anchors.topMargin: ScreenTools.defaultFontPixelHeight * (_airspaceIndicatorVisible  ? 3 : 1.3)//
+        //anchors.top:    battTimeLoader.top
+        //anchors.topMargin: ScreenTools.defaultFontPixelHeight * (_airspaceIndicatorVisible  ? 3 : 1.3)//
         anchors.horizontalCenter: parent.horizontalCenter
 
-        //anchors.bottom:         parent.bottom
-        //anchors.bottomMargin:   ScreenTools.defaultFontPixelWidth
-        // anchors.right:          attitudeIndicator.visible ? attitudeIndicator.left : parent.right
-        // anchors.rightMargin:    attitudeIndicator.visible ? -ScreenTools.defaultFontPixelWidth : ScreenTools.defaultFontPixelWidth
+        anchors.bottom:         parent.bottom
+        anchors.bottomMargin:   ScreenTools.defaultFontPixelWidth
+         //anchors.right:          attitudeIndicator.visible ? attitudeIndicator.left : parent.right
+         //anchors.rightMargin:    attitudeIndicator.visible ? -ScreenTools.defaultFontPixelWidth : ScreenTools.defaultFontPixelWidth
 
         readonly property bool  _showGps: CustomQuickInterface.showAttitudeWidget
 
@@ -315,7 +318,7 @@ Item {
             id:                     vehicleStatusGrid
             columnSpacing:          ScreenTools.defaultFontPixelWidth  * 2
             rowSpacing:             ScreenTools.defaultFontPixelHeight * 0.5
-            columns:                10
+            columns:                6
             anchors.centerIn:       parent
               Layout.fillWidth:     false
 
@@ -323,7 +326,10 @@ Item {
             //--  Row
             //-- Ground Speed
             QGCColoredImage {
-                height:                 _indicatorsHeight
+                Layout.column:          1
+                Layout.rowSpan:         2
+                Layout.row:             2
+                height:                 _indicatorsHeight*2
                 width:                  height
                 source:                 "/custom/img/horizontal_speed.svg"
                 fillMode:               Image.PreserveAspectFit
@@ -332,15 +338,47 @@ Item {
                 color:                  qgcPal.text
             }
             QGCLabel {
+                 Layout.column:         2
+                Layout.rowSpan:         2
+                Layout.row:             2
                 text:                   activeVehicle ? activeVehicle.groundSpeed.value.toFixed(1) + ' ' + activeVehicle.groundSpeed.units : "0.0"
                 color:                  _indicatorsColor
-                font.pointSize:         ScreenTools.mediumFontPointSize
+                font.pointSize:         ScreenTools.largeFontPointSize
                 Layout.fillWidth:       true
                 Layout.minimumWidth:    indicatorValueWidth
                 horizontalAlignment:    firstLabel.horizontalAlignment
             }
-            //-- Vertical Speed
+            //-- Altitude
             QGCColoredImage {
+               Layout.column:          4
+               Layout.rowSpan:         2
+               Layout.row:             2
+                height:                 _indicatorsHeight*2
+                width:                  height
+                source:                 "/custom/img/altitude.svg"
+                fillMode:               Image.PreserveAspectFit
+                sourceSize.height:      height
+                Layout.alignment:       Qt.AlignVCenter | Qt.AlignHCenter
+                color:                  qgcPal.text
+
+            }
+            QGCLabel {
+                Layout.column:          5
+                Layout.rowSpan:         2
+                Layout.row:             2
+                text:                   _altitude
+                color:                  _indicatorsColor
+                font.pointSize:         ScreenTools.largeFontPointSize
+                Layout.fillWidth:       false //true
+                Layout.minimumWidth:    indicatorValueWidth
+                horizontalAlignment:    firstLabel.horizontalAlignment
+            }
+
+            //-- Vertical Speed
+            QGCColoredImage {         
+                Layout.column:            4
+                Layout.rowSpan:           1
+                Layout.row:               4
                 height:                 _indicatorsHeight
                 width:                  height
                 source:                 "/custom/img/vertical_speed.svg"
@@ -354,32 +392,12 @@ Item {
                 text:                   getVerticalSpeed()//activeVehicle ? activeVehicle.climbRate.value.toFixed(1) + ' ' + activeVehicle.climbRate.units : " 0.0"
                 color:                  _indicatorsColor
                 font.pointSize:         ScreenTools.mediumFontPointSize
-                Layout.fillWidth:       false //true
-                Layout.minimumWidth:    indicatorValueWidth
-                horizontalAlignment:    firstLabel.horizontalAlignment
-            }
-
-            //-- Altitude
-            QGCColoredImage {
-                height:                 _indicatorsHeight
-                width:                  height
-                source:                 "/custom/img/altitude.svg"
-                fillMode:               Image.PreserveAspectFit
-                sourceSize.height:      height
-                Layout.alignment:       Qt.AlignVCenter | Qt.AlignHCenter
-                color:                  qgcPal.text
-
-            }
-            QGCLabel {
-                text:                   _altitude
-                color:                  _indicatorsColor
-                font.pointSize:         ScreenTools.mediumFontPointSize
                 Layout.fillWidth:       true
                 Layout.minimumWidth:    indicatorValueWidth
                 horizontalAlignment:    firstLabel.horizontalAlignment
             }
             //-- Chronometer
-            QGCColoredImage {
+ /*              QGCColoredImage {
                 height:                 _indicatorsHeight
                 width:                  height
                 source:                 "/custom/img/chronometer.svg"
@@ -400,13 +418,13 @@ Item {
                 Layout.minimumWidth:    indicatorValueWidth
                 horizontalAlignment:    firstLabel.horizontalAlignment
             }
-
+*/
 
 
             //-- CompaCircless (Circle )
             Item {
-                Layout.rowSpan:         3
-                Layout.column:          8
+                Layout.rowSpan:         5
+                Layout.column:          3
                 Layout.minimumWidth:    mainIsMap ? parent.height * 1.25 : parent.height * 1.25
                 Layout.fillHeight:      true
                 Layout.fillWidth:       true
@@ -476,8 +494,9 @@ Item {
 
             //showAttitudeWidget
             Item{
-                Layout.rowSpan:         3
-                Layout.column:          9
+                Layout.rowSpan:         5
+                Layout.column:          3
+                Layout.row:             0
                 Layout.minimumWidth:    mainIsMap ? parent.height * 1.25 : parent.height * 1.25
                 Layout.fillHeight:      true
                 Layout.fillWidth:       true
@@ -512,7 +531,7 @@ Item {
 
 
 
-            //--  Row
+  /*          //--  Row
             //-- Odometer
             QGCColoredImage {
                 height:                 _indicatorsHeight
@@ -648,7 +667,7 @@ Item {
                 horizontalAlignment:    firstLabel.horizontalAlignment
                 visible:                vehicleIndicator._showGps
             }
-
+*/
 
         }
         MouseArea {
